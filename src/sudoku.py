@@ -1,0 +1,1 @@
+import numpy as npclass Sudoku():        problem = np.zeros((9,9))        def read(self, name):        self.problem = np.genfromtxt(name, delimiter=',')        def show(self):        print(self.problem)        if __name__=='__main__':    sudoku = Sudoku()    sudoku.read('../data/sudoku_1.txt')    sudoku.show()
