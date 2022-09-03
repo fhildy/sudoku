@@ -6,8 +6,7 @@ class Sudoku():
 
     def __init__(self, filename):
         # problem & solution
-        self.sudoku_problem = np.zeros((9,9))
-        self.read(filename)
+        self.sudoku_problem = self.read(filename)
         self.sudoku = np.copy(self.sudoku_problem)
         # quadrants
         self.quadrants = np.zeros((9,9)).astype(int)
@@ -17,8 +16,11 @@ class Sudoku():
         self.initialize_options()
 
     def read(self, filename):
-        self.sudoku_problem = np.genfromtxt(filename,
-                                            delimiter=',').astype(int)
+        sudoku = np.genfromtxt(filename, delimiter=',').astype(int)
+        assert sudoku.shape == (9,9), \
+            'Error: File contains sudoku with shape {},'.format(sudoku.shape) \
+            +' only (9, 9) allowed!'
+        return sudoku
 
     def set_quadrants(self):
         for i0 in range(3):
@@ -96,14 +98,19 @@ class Sudoku():
                 if len(options) == 1:
                     self.sudoku[i,j] = list(options)[0]
     
-    def solve(self, show_intermediate=True):
-        while 0 in set(self.sudoku.flatten()):
+    def solve(self, show_intermediate=False):
+        iter = 0
+        max_iter = 81 - sum(sum(self.sudoku_problem == 0))
+        while (0 in set(self.sudoku.flatten())) and (iter < max_iter):
             self.reduce_options()
             if show_intermediate is True:
                 sudoku.show(plot_options=True)
             self.fill_fields()
             if show_intermediate is True:
                 sudoku.show(plot_options=True)
+            iter = iter + 1
+        if 0 in set(self.sudoku.flatten()):
+            print('Given sudoku could not be solved.')
 
     def check(self):
         correct = True
@@ -123,9 +130,11 @@ class Sudoku():
                 print('Error in quadrant {}!'.format(i))
         if correct is True:
             print('Solution is correct!')
+        return correct
+
 
 if __name__=='__main__':
-    sudoku = Sudoku('../data/sudoku_1.txt')
+    sudoku = Sudoku('../data/sudoku_easy_1.txt')
     sudoku.solve()
     sudoku.show()
     sudoku.check()
