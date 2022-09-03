@@ -1,1 +1,1 @@
-numpymatplotlibpytest
+numpymatplotlibpytestpytest-cov
