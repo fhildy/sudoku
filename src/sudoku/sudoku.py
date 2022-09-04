@@ -90,32 +90,47 @@ class Sudoku():
                 if self.sudoku[i,j]==0:
                     for k in row_set.union(column_set).union(quadrant_set):
                         self.sudoku_options[i,j,k-1] = 0
+        # reduce options in other quadrants
     
     def fill_fields(self):
+        field_filled = False
         # only one remaining option in field
         for i in range(9):
             for j in range(9):
                 options = set(self.sudoku_options[i,j,:])-{0}
-                if len(options) == 1:
+                if len(options) == 1 and field_filled == False:
                     self.sudoku[i,j] = list(options)[0]
                     self.sudoku_options[i,j,:] = 0
+                    field_filled = True
         # only one remaining option per row/column/quadrant
         for i in range(9):
             for j in range(9):
-                if sum(self.sudoku_options[i,:,j] == j+1) == 1:
+                if sum(self.sudoku_options[i,:,j] == j+1) == 1 \
+                    and field_filled == False:
                     self.sudoku[i,self.sudoku_options[i,:,j] == j+1] = j+1
-                    print('row')
-                if sum(self.sudoku_options[:,i,j] == j+1) == 1:
+                    self.sudoku_options[i,
+                        self.sudoku_options[i,:,j] == j+1,:] = 0
+                    field_filled = True
+                    print('setting {} in row {}'.format(j+1, i))
+                if sum(self.sudoku_options[:,i,j] == j+1) == 1 \
+                    and field_filled == False:
                     self.sudoku[self.sudoku_options[:,i,j] == j+1,i] = j+1
-                    print('column')
-                if sum(self.sudoku_options[self.quadrants==i,j] == j+1) == 1:
+                    self.sudoku_options[
+                        self.sudoku_options[:,i,j] == j+1,i,:] = 0
+                    field_filled = True
+                    print('setting {} in column {}'.format(j+1, i))
+                    break
+                if sum(self.sudoku_options[self.quadrants==i,j] == j+1) == 1 \
+                    and field_filled == False:
                     ii_quadrant = np.where(self.quadrants==i)
                     ii_single = np.where(self.sudoku_options[self.quadrants==i,j] == j+1)
                     self.sudoku[ii_quadrant[0][ii_single[0]],
                                 ii_quadrant[1][ii_single[0]]] = j+1
                     self.sudoku_options[ii_quadrant[0][ii_single[0]],
                                         ii_quadrant[1][ii_single[0]],:] = 0
-                    print('quadrant {}'.format(i))
+                    field_filled = True
+                    print('setting {} in quadrant {}'.format(j+1, i))
+                    break
         
     
     def solve(self, show_intermediate=False):
@@ -154,7 +169,7 @@ class Sudoku():
 
 
 if __name__=='__main__':
-    sudoku = Sudoku('../../data/sudoku_hard_1.txt')
+    sudoku = Sudoku('../../data/sudoku_hard_2.txt')
     sudoku.solve(show_intermediate=True)
     sudoku.show()
     sudoku.check()
